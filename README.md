@@ -1,137 +1,158 @@
-# MatchPredictor 📈
+# MatchPredictor v2.0 — Project Overview
 
-A modern web application for predicting football match outcomes using machine learning algorithms.
+MatchPredictor is a unified system for predicting football match results for the five major European leagues using machine learning and up-to-date data.
 
-![MatchPredictor Interface](resources/screenshot.png)
+---
 
-## Features
+## Key Features
 
-- **Modern UI**: Clean, responsive design with gradient backgrounds and glassmorphism effects
-- **Team Selection**: Choose home and away teams from dropdown menus
-- **Match Setup**: Input match date and location
-- **AI Predictions**: Get probability predictions for Home Win, Draw, and Away Win
-- **Real-time Results**: Instant prediction results with smooth animations
+### Dataset
+- Consolidated historical dataset of matches across the top five European leagues
+- Thousands of matches standardized for machine learning
+- Focus on recent seasons for better generalization
 
-## Tech Stack
+### Unified Data Sources
+- Combines multiple APIs and data sources to maximize coverage and freshness
+- Uses API-Sports for stable historical data and Football-Data.org for more recent matches
+- Automatic rate-limit handling and retry/fallback logic
 
-- **Backend**: Flask (Python)
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **ML Libraries**: scikit-learn, pandas, numpy
-- **Data Processing**: pandas, numpy
-- **Web Scraping**: requests, beautifulsoup4
+### Machine Learning
+- Unified preprocessing and feature engineering pipeline
+- XGBoost as the primary model for match outcome prediction
+- Time-aware validation (temporal holdouts and backtests)
 
-## Installation
+---
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/MatchPredictor.git
-cd MatchPredictor
-```
-
-2. Create and activate a virtual environment:
-```bash
-python -m venv .venv
-# On Windows:
-.venv\Scripts\activate
-# On macOS/Linux:
-source .venv/bin/activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Run the application:
-```bash
-python app.py
-```
-
-5. Open your browser and visit: `http://localhost:5000`
-
-## Project Structure
+## Project Layout
 
 ```
 MatchPredictor/
-├── app.py                 # Main Flask application
-├── templates/
-│   └── index.html        # Main HTML template
-├── static/
-│   ├── css/
-│   │   └── styles.css    # Main stylesheet
-│   └── js/
-│       └── main.js       # Frontend JavaScript
-├── data/                 # Historical match data
-├── models/              # Trained ML models
-├── src/                 # Source code modules
-├── requirements.txt     # Python dependencies
-└── README.md           # This file
+├── config/                 # API keys and project configuration
+├── data/                   # raw, processed and enriched datasets
+├── src/                    # application source code (scrapers, preprocessing, models, predictions)
+├── models/                 # trained model artifacts (joblib)
+├── logs/                   # training and system logs
+├── scripts/                # utility scripts
+├── predictions/            # prediction output and evaluations
+└── resources/              # static assets (images, etc.)
 ```
 
-## Usage
+---
 
-1. **Select Teams**: Choose the home and away teams from the dropdown menus
-2. **Set Date**: Select the match date (defaults to tomorrow)
-3. **Enter Location**: Specify where the match will be played
-4. **Get Prediction**: Click the "Predict" button to get AI-powered predictions
+## Quick Start (Windows)
 
-## API Endpoints
+1. Clone the repository
 
-### POST /predict
-Predicts match outcome based on team and match information.
+```powershell
+git clone <repository-url>
+cd MatchPredictor
+```
 
-**Request Body:**
-```json
-{
-    "home_team": "Arsenal",
-    "away_team": "Chelsea",
-    "match_date": "2024-03-15",
-    "location": "Emirates Stadium"
+2. Create and activate a Python virtual environment
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+3. Configure API keys
+
+Create `config/api.env` (or edit `api.env.example`) and add your keys:
+
+```env
+FOOTBALL_API_KEY=your_api_sports_key
+FOOTBALL_DATA_ORG_KEY=your_football_data_key
+```
+
+---
+
+## Common Workflows
+
+Download full dataset:
+
+```powershell
+python src/scrapers/unified_scraper.py
+```
+
+Preprocess data:
+
+```powershell
+python src/preprocessing/unified_preprocessor.py
+```
+
+Analyze dataset quality and coverage:
+
+```powershell
+python src/analysis/data_analyzer.py
+```
+
+Train ML models (XGBoost):
+
+```powershell
+python src/models/train_models.py
+```
+
+Run the Flask web app (development):
+
+```powershell
+python src/app_v2.py
+```
+
+---
+
+## Supported Leagues (examples)
+
+```python
+LEAGUES = {
+    'EPL': 'Premier League',
+    'ES1': 'La Liga',
+    'IT1': 'Serie A',
+    'DE1': 'Bundesliga',
+    'FR1': 'Ligue 1'
 }
 ```
 
-**Response:**
-```json
-{
-    "success": true,
-    "prediction": {
-        "home_win_probability": 45.2,
-        "draw_probability": 28.1,
-        "away_win_probability": 26.7,
-        "predicted_result": "Home Win"
-    },
-    "match_info": {
-        "home_team": "Arsenal",
-        "away_team": "Chelsea",
-        "match_date": "2024-03-15",
-        "location": "Emirates Stadium"
-    }
-}
-```
+---
 
-## Development
+## Internals and Developer Notes
 
-To contribute to the project:
+1. Data collection (`src/scrapers/`) – unified scraping client for multiple APIs with retries and rate-limit handling.
+2. Preprocessing (`src/preprocessing/`) – cleaning, normalization and feature engineering for ML.
+3. Models (`src/models/`) – training pipelines and utilities (XGBoost, calibration, encoders/scalers).
+4. Predictions (`src/predictions/`) – `match_predictor.py` is the runtime predictor used by scripts and the app.
+5. Web app (`src/`) – Flask app that serves predictions and basic UI.
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and test thoroughly
-4. Commit your changes: `git commit -am 'Add some feature'`
-5. Push to the branch: `git push origin feature-name`
-6. Submit a pull request
+Data flow: Raw Data → Preprocessing → Feature Engineering → Model Training → Predictions
 
-## Machine Learning Models
+---
 
-The application uses various ML algorithms to predict match outcomes:
-- Historical match data analysis
-- Team performance metrics
-- Home advantage calculations
-- Recent form analysis
+## Troubleshooting & Tips
 
-## License
+- If you hit API rate limits, wait between requests or use multiple API keys.
+- If a model training run fails, inspect `logs/train_log.txt` for stack traces and warnings.
+- Keep `models/` small and store versioned artifacts (timestamped files are kept in `models/archive/`).
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+---
+
+## Requirements (high level)
+
+- Flask
+- pandas, numpy
+- scikit-learn, xgboost
+- joblib
+
+Use `requirements.txt` for exact pinned dependencies.
+
+---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. To add leagues, update the mapping in `config/project_config.py`. To add models or features, extend files under `src/models/` and `src/preprocessing/`.
+
+---
+
+This README provides a concise English overview for developers and users. For developer-oriented, low-level references, see the `src/` subfolders and inline docstrings.
+- **Architettura modulare** per facile manutenzione
+
+Il sistema è **pronto per l'uso** e può essere facilmente esteso con nuove leghe, modelli o funzionalità.
