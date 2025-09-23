@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Match Setup - MatchPredictor</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:Arial;background:#a31621;color:#fcf7f8;min-height:100vh}
+        .container{max-width:900px;margin:120px auto 40px;padding:0 20px}
+        .card{background:rgba(255,255,255,0.95);color:#222;padding:24px;border-radius:12px}
+        .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+        .input,select{padding:10px;border-radius:8px;border:1px solid #ddd;width:100%}
+        .btn{background:#a31621;color:white;padding:10px 14px;border-radius:8px;border:none;cursor:pointer}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <img src="/resources/graphic.png" alt="logo"> MatchPredictor
+        </div>
+        <div class="nav-center">
+            <a class="nav-btn" href="/">Home</a>
+            <a class="nav-btn" href="/match-setup">Match Setup</a>
+            <a class="nav-btn" href="/predictions">Predictions</a>
+            <a class="nav-btn" href="/prediction-results">Results</a>
+            <a class="nav-btn" href="/about">About</a>
+        </div>
+        <div><a class="signin-btn" href="/signin">Sign In</a></div>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h2>Match Setup</h2>
+            <div class="row">
+                <select id="homeTeam" class="input">
+                    <option value="">Select Home Team</option>
+                </select>
+                <select id="awayTeam" class="input">
+                    <option value="">Select Away Team</option>
+                </select>
+            </div>
+            <div class="row">
+                <input type="date" id="matchDate" class="input" value="2025-08-26">
+                <input type="text" id="location" class="input" placeholder="Stadium">
+            </div>
+            <div style="text-align:center"><button class="btn" id="go">Generate Prediction</button></div>
+        </div>
+    </div>
+    <script id="teams-data" type="application/json">{{ teams_by_league | tojson }}</script>
+    <script>
+        const teams = JSON.parse(document.getElementById('teams-data').textContent||'{}');
+        // populate selects with first league teams as default
+        const first = Object.keys(teams)[0];
+        const h = document.getElementById('homeTeam'), a = document.getElementById('awayTeam');
+        if (first && teams[first]){
+            teams[first].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; h.appendChild(o); const o2=o.cloneNode(true); a.appendChild(o2); });
+        }
+        document.getElementById('go').addEventListener('click', ()=>{
+            const data = {home: h.value, away: a.value, date: document.getElementById('matchDate').value, location: document.getElementById('location').value};
+            if (!data.home||!data.away) { alert('Select teams'); return; }
+            sessionStorage.setItem('matchData', JSON.stringify(data));
+            location.href='/prediction-results';
+        });
+    </script>
+</body>
+</html>
