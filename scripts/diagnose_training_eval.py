@@ -103,7 +103,7 @@ else:
     print(eval.head(10).to_string())
 
 # Baseline: most frequent class in training
-# determine FTR in training
+
 if 'FTR' in train.columns:
     top = train['FTR'].mode().iloc[0]
     print('\nMost frequent FTR in training:', top)
